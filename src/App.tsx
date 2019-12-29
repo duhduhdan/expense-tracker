@@ -1,26 +1,36 @@
 import React, { useState } from 'react'
-import { Layout, Icon, Menu } from 'antd'
+import { Layout, Icon, Menu, Typography, Row, PageHeader, Avatar } from 'antd'
 
 import { ExpenseForm } from './components/ExpenseForm'
-import './App.css'
+import { ExpenseTable } from './components/ExpenseTable'
+import { Lollipop } from './components/Lollipop'
 
-const { Header, Content, Footer, Sider } = Layout
+const { Header, Content, Sider } = Layout
 const { SubMenu } = Menu
+const { Text } = Typography
 
 function App() {
-  const [collapsed, updateCollapsed] = useState<boolean>(false)
+  const [collapsed, updateCollapsed] = useState<boolean>(true)
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={updateCollapsed}>
+      <Sider collapsed={collapsed} onCollapse={updateCollapsed}>
+        <Row type="flex" justify="center" align="middle">
+          <Text
+            style={{ color: '#fff', margin: 0, padding: '8px 0', fontSize: 16 }}
+            strong
+          >
+            Kostnadr
+          </Text>
+        </Row>
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
           <Menu.Item key="1">
-            <Icon type="pie-chart" />
-            <span>Option 1</span>
+            <Icon type="rise" />
+            <span>Expenses</span>
           </Menu.Item>
           <Menu.Item key="2">
-            <Icon type="desktop" />
-            <span>Option 2</span>
+            <Icon type="dashboard" />
+            <span>Bills</span>
           </Menu.Item>
           <SubMenu
             key="sub1"
@@ -54,11 +64,36 @@ function App() {
         </Menu>
       </Sider>
       <Layout style={{ backgroundColor: '#fff' }}>
-        <Header />
-        <Content style={{ margin: 16 }}>
+        <Header style={{ background: '#fff', padding: '0 16px' }}>
+          <Row
+            type="flex"
+            style={{ width: '100%' }}
+            justify="space-between"
+            align="middle"
+          >
+            <Icon
+              className="trigger"
+              type={collapsed ? 'menu-unfold' : 'menu-fold'}
+              onClick={() => updateCollapsed(!collapsed)}
+            />
+            <div>
+              <Avatar icon="user" size="small" />
+              <Text style={{ paddingLeft: 8 }}>Username</Text>
+            </div>
+          </Row>
+        </Header>
+        <Content style={{ padding: 16 }}>
+          <PageHeader
+            title="Expenses"
+            subTitle="December 2019"
+            style={{
+              border: '1px solid rgb(235, 237, 240)',
+            }}
+          />
           <ExpenseForm />
+          <ExpenseTable />
+          <Lollipop />
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Expense Tracker ©2019</Footer>
       </Layout>
     </Layout>
   )

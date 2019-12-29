@@ -1,0 +1,17 @@
+--- node_modules\@nozbe\watermelondb\utils\common\makeDecorator\index.d.ts	Fri Dec 27 11:28:46 2019
++++ patches\index.d.ts	Sun Dec 29 07:49:35 2019
+@@ -1,8 +1,12 @@
+ declare module '@nozbe/watermelondb/utils/common/makeDecorator' {
+   import { ReplaceReturn } from '@nozbe/watermelondb/utils/common'
+ 
+-  export type Descriptor = Object
+-  export type RawDecorator = (target: Object, key: string, descriptor: Descriptor) => Descriptor
++  export type Descriptor = any
++  export type RawDecorator = (
++    target: Object,
++    key: string,
++    descriptor: Descriptor,
++  ) => Descriptor
+   export type RawDecoratorFactory<T extends any[]> = (...any: T) => RawDecorator
+ 
+   export type Decorator<

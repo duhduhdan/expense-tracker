@@ -1,6 +1,6 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
-const DATABASE_VERSION = 1
+const DATABASE_VERSION = 4
 
 export default appSchema({
   version: DATABASE_VERSION,
