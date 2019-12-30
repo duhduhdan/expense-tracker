@@ -2,13 +2,16 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
 import { database } from './db'
+import { AuthProvider } from './hooks/use-auth'
 import './index.css'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
   <DatabaseProvider database={database}>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </DatabaseProvider>,
   document.getElementById('root'),
 )

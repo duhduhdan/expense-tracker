@@ -19,7 +19,7 @@ function ExpenseTable({
       key: 'category',
     },
     {
-      title: 'Date',
+      title: 'Purchase date',
       dataIndex: 'date',
       key: 'date',
     },
@@ -36,7 +36,7 @@ function ExpenseTable({
         `$${text}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
     },
     {
-      title: 'Action',
+      title: '',
       dataIndex: 'action',
       key: 'action',
       render: (_: unknown, record: any) => (
@@ -55,7 +55,7 @@ function ExpenseTable({
   ]
 
   const sortedExpenses = expenses.sort((a: any, b: any) =>
-    moment.utc(b.date).diff(moment.utc(a.date)),
+    moment.utc(b.date, 'L').diff(moment.utc(a.date, 'L')),
   )
 
   async function handleConfirm(id: string): Promise<void> {

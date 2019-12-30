@@ -195,8 +195,6 @@ module.exports = function(webpackEnv) {
       // Prevents conflicts when multiple Webpack runtimes (from different apps)
       // are used on the same page.
       jsonpFunction: `webpackJsonp${appPackageJson.name}`,
-      // this defaults to 'window', but by setting it to 'this' then
-      // module chunks which are built will work in web workers as well.
       globalObject: 'this',
     },
     optimization: {
@@ -239,7 +237,6 @@ module.exports = function(webpackEnv) {
               // Turned on because emoji and regex is not minified properly using default
               // https://github.com/facebook/create-react-app/issues/2488
               ascii_only: true,
-              globalObject: 'this',
             },
           },
           sourceMap: shouldUseSourceMap,
