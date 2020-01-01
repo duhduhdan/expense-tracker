@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from 'react'
-import { Form, Input } from 'antd'
+import { Form, Input, Button, Icon } from 'antd'
 
 import { useAuth } from '../hooks/use-auth'
 
@@ -20,7 +20,11 @@ function SignupForm({ form }) {
     })
   }
 
-  function compareToFirstPassword(rule, value, cb) {
+  function compareToFirstPassword(
+    _rule: never,
+    value: string,
+    cb: (args?: string) => void,
+  ) {
     if (value && value !== form.getFieldValue('password')) {
       cb("Passwords don't match")
     } else {
@@ -28,7 +32,11 @@ function SignupForm({ form }) {
     }
   }
 
-  function validateToNextPassword(rule, value, cb) {
+  function validateToNextPassword(
+    _rule: never,
+    value: string,
+    cb: (args?: string) => void,
+  ) {
     if (value && confirmDirty) {
       form.validateFields('confirm', { force: true })
     }
@@ -36,15 +44,15 @@ function SignupForm({ form }) {
     cb()
   }
 
-  function handleConfirmBlur(event) {
+  function handleConfirmBlur(event: any) {
     const { value } = event.target
 
     updateConfirmDirty({ confirmDirty: confirmDirty || !!value })
   }
 
   return (
-    <Form onSubmit={handleSubmit} className="signup-form" layout="horizontal">
-      <Form.Item label="E-mail">
+    <Form onSubmit={handleSubmit}>
+      <Form.Item>
         {getFieldDecorator('email', {
           rules: [
             {
@@ -56,9 +64,15 @@ function SignupForm({ form }) {
               message: 'Please type your email',
             },
           ],
-        })(<Input />)}
+        })(
+          <Input
+            type="email"
+            prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            placeholder="Email"
+          />,
+        )}
       </Form.Item>
-      <Form.Item label="Password" hasFeedback>
+      <Form.Item hasFeedback>
         {getFieldDecorator('password', {
           rules: [
             {
@@ -69,9 +83,14 @@ function SignupForm({ form }) {
               validator: validateToNextPassword,
             },
           ],
-        })(<Input.Password />)}
+        })(
+          <Input.Password
+            prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            placeholder="Password"
+          />,
+        )}
       </Form.Item>
-      <Form.Item label="Confirm password" hasFeedback>
+      <Form.Item hasFeedback>
         {getFieldDecorator('confirm', {
           rules: [
             {
@@ -82,7 +101,18 @@ function SignupForm({ form }) {
               validator: compareToFirstPassword,
             },
           ],
-        })(<Input.Password onBlur={handleConfirmBlur} />)}
+        })(
+          <Input.Password
+            prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            onBlur={handleConfirmBlur}
+            placeholder="Confirm password"
+          />,
+        )}
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+          Register
+        </Button>
       </Form.Item>
     </Form>
   )

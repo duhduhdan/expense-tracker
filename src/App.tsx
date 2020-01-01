@@ -9,6 +9,7 @@ import {
   Avatar,
   Modal,
   Button,
+  Dropdown,
 } from 'antd'
 
 import { ExpenseForm } from './components/ExpenseForm'
@@ -29,7 +30,22 @@ function App() {
   return (
     <>
       <Modal
-        title={signingUp ? 'Sign up' : 'Login'}
+        title={
+          signingUp ? (
+            <>
+              <Button
+                shape="circle"
+                icon="left"
+                size="small"
+                onClick={() => updateSigningUp(false)}
+                style={{ marginRight: 8 }}
+              />{' '}
+              <Text>Register</Text>
+            </>
+          ) : (
+            <Text>Login</Text>
+          )
+        }
         visible={!user}
         footer={null}
       >
@@ -39,7 +55,6 @@ function App() {
           <>
             <LoginForm />
             <Row>
-              Or{' '}
               <Button type="link" onClick={() => updateSigningUp(true)}>
                 Register now!
               </Button>
@@ -103,29 +118,34 @@ function App() {
           </Menu>
         </Sider>
         <Layout style={{ backgroundColor: '#fff' }}>
-          <Header style={{ background: '#fff', padding: '0 16px' }}>
-            <Row
-              type="flex"
-              style={{ width: '100%' }}
-              justify="space-between"
-              align="middle"
-            >
+          <Header
+            style={{ background: '#fff', padding: '0 16px', width: '100%' }}
+          >
+            <Row type="flex" justify="space-between" align="middle">
               <Icon
                 className="trigger"
                 type={collapsed ? 'menu-unfold' : 'menu-fold'}
                 onClick={() => updateCollapsed(!collapsed)}
               />
-              <div>
-                <Avatar icon="user" size="small" />
-                <Text style={{ paddingLeft: 8 }}>{user && user.email}</Text>
-                <Button
-                  type="danger"
-                  onClick={signout}
-                  style={{ marginLeft: 8 }}
-                >
-                  Sign out
-                </Button>
-              </div>
+              <Dropdown
+                overlay={
+                  <Menu>
+                    <Menu.Item>
+                      <Button type="link" onClick={signout}>
+                        Sign out
+                      </Button>
+                    </Menu.Item>
+                  </Menu>
+                }
+              >
+                <div>
+                  <Avatar icon="user" size="small" />
+                  <Text style={{ paddingLeft: 8 }}>
+                    {user && user.email}
+                  </Text>{' '}
+                  <Icon type="down" />
+                </div>
+              </Dropdown>
             </Row>
           </Header>
           <Content style={{ padding: 16 }}>

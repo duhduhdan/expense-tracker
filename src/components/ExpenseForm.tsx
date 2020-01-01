@@ -51,6 +51,8 @@ function ExpenseForm({ form }): React.ReactElement {
       layout="inline"
       onSubmit={handleSubmit}
       style={{ width: '100%', padding: '16px 0 32px' }}
+      labelCol={{ xs: 24, sm: 8 }}
+      wrapperCol={{ xs: 24, sm: 16 }}
     >
       <Form.Item label="Category:">
         {getFieldDecorator(`expense_category`, {
