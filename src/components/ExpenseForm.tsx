@@ -1,6 +1,7 @@
 import React, { FormEvent, useState } from 'react'
-import { Moment } from 'moment'
 import { Button, Form, Select, DatePicker, InputNumber, Input } from 'antd'
+import { Moment } from 'moment'
+
 import { createExpense } from '../actions/expenses'
 
 type Vals = {
@@ -62,11 +63,16 @@ function ExpenseForm({ form }): React.ReactElement {
             placeholder="Select a category"
             style={{ width: 160 }}
             autoFocus
+            showSearch
           >
             <Select.Option value="Grocery">Grocery</Select.Option>
+            <Select.Option value="Snack">Snack</Select.Option>
             <Select.Option value="Clothes">Clothes</Select.Option>
             <Select.Option value="Living">Living</Select.Option>
             <Select.Option value="Investments">Investments</Select.Option>
+            <Select.Option value="Entertainment">Entertainment</Select.Option>
+            <Select.Option value="Transportation">Transportation</Select.Option>
+            <Select.Option value="Subscriptions">Subscriptions</Select.Option>
           </Select>,
         )}
       </Form.Item>

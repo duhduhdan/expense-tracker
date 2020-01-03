@@ -10,12 +10,16 @@ import {
   Modal,
   Button,
   Dropdown,
+  Col,
 } from 'antd'
+import moment from 'moment'
 
 import { ExpenseForm } from './components/ExpenseForm'
 import { ExpenseTable } from './components/ExpenseTable'
 import { LoginForm } from './components/LoginForm'
 import { SignupForm } from './components/SignupForm'
+import { BarChart } from './components/BarChart'
+import { RadarChart } from './components/RadarChart'
 import { useAuth } from './hooks/use-auth'
 
 const { Header, Content, Sider } = Layout
@@ -151,13 +155,25 @@ function App() {
           <Content style={{ padding: 16 }}>
             <PageHeader
               title="Expenses"
-              subTitle="December 2019"
+              subTitle={moment().format('MMMM YYYY')}
               style={{
                 border: '1px solid rgb(235, 237, 240)',
               }}
             />
-            <ExpenseForm />
-            <ExpenseTable />
+            <Row>
+              <Col span={12}>
+                <BarChart />
+              </Col>
+              <Col span={12}>
+                <RadarChart />
+              </Col>
+            </Row>
+            <Row>
+              <ExpenseForm />
+            </Row>
+            <Row>
+              <ExpenseTable />
+            </Row>
           </Content>
         </Layout>
       </Layout>
