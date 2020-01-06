@@ -69,6 +69,7 @@ function SignupForm({ form }) {
             type="email"
             prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
             placeholder="Email"
+            size="large"
           />,
         )}
       </Form.Item>
@@ -87,6 +88,7 @@ function SignupForm({ form }) {
           <Input.Password
             prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
             placeholder="Password"
+            size="large"
           />,
         )}
       </Form.Item>
@@ -106,11 +108,17 @@ function SignupForm({ form }) {
             prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
             onBlur={handleConfirmBlur}
             placeholder="Confirm password"
+            size="large"
           />,
         )}
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+        <Button
+          type="primary"
+          htmlType="submit"
+          style={{ width: '100%' }}
+          size="large"
+        >
           Register
         </Button>
       </Form.Item>
