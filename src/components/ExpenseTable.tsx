@@ -155,11 +155,11 @@ function ExpenseTable({ expenses }: Props): React.ReactElement<Props> {
             onConfirm={() => handleConfirm(record['_raw'].id)}
           >
             <Button size="small" type="danger">
-              Delete
+              <Icon type="delete" />
             </Button>
           </Popconfirm>
           <Button size="small" type="primary" style={{ marginLeft: 8 }}>
-            Update
+            <Icon type="edit" />
           </Button>
         </Row>
       ),
