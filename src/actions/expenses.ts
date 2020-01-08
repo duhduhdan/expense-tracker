@@ -1,4 +1,5 @@
 import { Model } from '@nozbe/watermelondb'
+import { omitBy, isUndefined } from 'lodash'
 
 import { database } from '../db'
 
@@ -36,6 +37,10 @@ export async function createExpense({
 }
 
 export async function deleteExpense({ id }: Expense): Promise<void> {
+  if (!id) {
+    throw new Error('Need an id to delete the expense')
+  }
+
   const collection = database.collections.get('expenses')
 
   await database.action(async () => {
@@ -52,16 +57,20 @@ export async function updateExpense({
   amount,
   category,
 }: Expense): Promise<void> {
+  if (!id) {
+    throw new Error('Need an id to update the expense')
+  }
+
   const collection = database.collections.get('expenses')
 
   await database.action(async () => {
     const expense = await collection.find(id)
+    const toUpdate = {
+      ...omitBy({ date, item, amount, category }, isUndefined),
+    }
 
     await expense.update((expense: ExpenseModel) => {
-      expense.date = date
-      expense.item = item
-      expense.amount = amount
-      expense.category = category
+      Object.keys(toUpdate).forEach(key => (expense[key] = toUpdate[key]))
     })
   })
 }

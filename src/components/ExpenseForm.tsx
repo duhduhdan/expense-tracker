@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useRef, useState, RefObject } from 'react'
 import { Button, Form, Select, DatePicker, InputNumber, Input } from 'antd'
 import { Moment } from 'moment'
 
@@ -12,8 +12,11 @@ type Vals = {
 }
 
 function ExpenseForm({ form }): React.ReactElement {
-  const [dataSource, updateDataSource] = useState<any>([])
   const { getFieldDecorator } = form
+
+  const [dataSource, updateDataSource] = useState<any>([])
+
+  const itemInput: RefObject<Input> = useRef()
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault()
@@ -39,10 +42,12 @@ function ExpenseForm({ form }): React.ReactElement {
 
         form.setFieldsValue({
           expense_amount: '',
-          expense_category: '',
-          expense_date: null,
           expense_item: '',
         })
+
+        if (itemInput && itemInput.current) {
+          itemInput.current.focus()
+        }
       }
     })
   }
@@ -75,6 +80,7 @@ function ExpenseForm({ form }): React.ReactElement {
             <Select.Option value="Subscriptions">Subscriptions</Select.Option>
             <Select.Option value="Medical">Medical</Select.Option>
             <Select.Option value="Misc">Misc</Select.Option>
+            <Select.Option value="Bills">Bills</Select.Option>
           </Select>,
         )}
       </Form.Item>
@@ -93,7 +99,7 @@ function ExpenseForm({ form }): React.ReactElement {
               message: 'Provide an item',
             },
           ],
-        })(<Input placeholder="Enter an item" />)}
+        })(<Input placeholder="Enter an item" ref={itemInput} />)}
       </Form.Item>
 
       <Form.Item label="Amount:">

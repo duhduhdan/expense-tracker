@@ -9,6 +9,7 @@ Offline first expenses tracking with a dash of data visualization.
 - [x] Ant Data Visualization
 - [x] Routing
 - [x] Login page instead of modal
+- [ ] Past month expenses
 - [ ] Paginate table to new route
 - [ ] Remote database sync
 - [ ] Custom categories
