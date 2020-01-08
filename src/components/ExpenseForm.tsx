@@ -73,6 +73,8 @@ function ExpenseForm({ form }): React.ReactElement {
             <Select.Option value="Entertainment">Entertainment</Select.Option>
             <Select.Option value="Transportation">Transportation</Select.Option>
             <Select.Option value="Subscriptions">Subscriptions</Select.Option>
+            <Select.Option value="Medical">Medical</Select.Option>
+            <Select.Option value="Misc">Misc</Select.Option>
           </Select>,
         )}
       </Form.Item>

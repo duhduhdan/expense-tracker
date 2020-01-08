@@ -4,6 +4,7 @@ import {
   Icon,
   Menu,
   Row,
+  Col,
   Avatar,
   Button,
   Dropdown,
@@ -20,6 +21,7 @@ import { ExpenseForm } from '../components/ExpenseForm'
 import { ExpenseTable } from '../components/ExpenseTable'
 import { useAuth } from '../hooks/use-auth'
 import { IExpense } from '../model/expense'
+import { BarChart } from '../components/BarChart'
 
 const { Header, Content, Sider } = Layout
 const { SubMenu } = Menu
@@ -28,20 +30,18 @@ const { Text } = Typography
 type Props = { expenses: IExpense[] }
 
 function ExpensesScreen({ expenses }: Props) {
-  const [minMaxExpense, updateMinMaxExpense] = useState<{
+  const [minMaxExpense, setMinMaxExpense] = useState<{
     min: number
     max: number
   }>({ min: 0.0, max: 0.0 })
-  const [totalSpent, updateTotalSpent] = useState<number>(0.0)
-  const [collapsed, updateCollapsed] = useState<boolean>(true)
+  const [totalSpent, setTotalSpent] = useState<number>(0.0)
+  const [collapsed, setCollapsed] = useState<boolean>(true)
   const { user, signout } = useAuth()
 
   useEffect(() => {
-    updateTotalSpent(
-      expenses.reduce((accum, curr) => (accum += curr.amount), 0),
-    )
+    setTotalSpent(expenses.reduce((accum, curr) => (accum += curr.amount), 0))
 
-    updateMinMaxExpense({
+    setMinMaxExpense({
       max: expenses.reduce((accum, curr) => Math.max(accum, curr.amount), 0),
       min: expenses.reduce((accum, curr) => Math.min(accum, curr.amount), 0),
     })
@@ -49,7 +49,7 @@ function ExpensesScreen({ expenses }: Props) {
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      <Sider collapsed={collapsed} onCollapse={updateCollapsed}>
+      <Sider collapsed={collapsed} onCollapse={setCollapsed}>
         <Row type="flex" justify="center" align="middle">
           <Text
             style={{
@@ -109,9 +109,8 @@ function ExpensesScreen({ expenses }: Props) {
         >
           <Row type="flex" justify="space-between" align="middle">
             <Icon
-              className="trigger"
               type={collapsed ? 'menu-unfold' : 'menu-fold'}
-              onClick={() => updateCollapsed(!collapsed)}
+              onClick={() => setCollapsed(!collapsed)}
             />
             <Dropdown
               trigger={['click']}
