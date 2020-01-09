@@ -34,7 +34,9 @@ function ExpensesScreen({ expenses }: Props) {
     min: number
     max: number
   }>({ min: 0.0, max: 0.0 })
+  const today = moment()
   const [totalSpent, setTotalSpent] = useState<number>(0.0)
+  const [spentToday, setSpentToday] = useState<number>(0.0)
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const { user, signout } = useAuth()
 
@@ -45,6 +47,15 @@ function ExpensesScreen({ expenses }: Props) {
       max: expenses.reduce((accum, curr) => Math.max(accum, curr.amount), 0),
       min: expenses.reduce((accum, curr) => Math.min(accum, curr.amount), 0),
     })
+
+    setSpentToday(
+      expenses.reduce((accum, curr) => {
+        console.log(moment(curr.date).date(), today.date())
+        return moment(curr.date).date() === today.date()
+          ? (accum += curr.amount)
+          : accum
+      }, 0),
+    )
   }, [expenses])
 
   return (
@@ -155,6 +166,11 @@ function ExpensesScreen({ expenses }: Props) {
                 value={minMaxExpense.max}
                 prefix="$"
                 style={{ margin: '0 32px' }}
+              />
+              <Statistic
+                title="Spent today"
+                prefix="$"
+                value={spentToday.toFixed(2)}
               />
             </Row>
           </PageHeader>
