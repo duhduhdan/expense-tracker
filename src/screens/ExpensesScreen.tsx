@@ -34,7 +34,6 @@ function ExpensesScreen({ expenses }: Props) {
     min: number
     max: number
   }>({ min: 0.0, max: 0.0 })
-  const today = moment()
   const [totalSpent, setTotalSpent] = useState<number>(0.0)
   const [spentToday, setSpentToday] = useState<number>(0.0)
   const [collapsed, setCollapsed] = useState<boolean>(true)
@@ -50,8 +49,7 @@ function ExpensesScreen({ expenses }: Props) {
 
     setSpentToday(
       expenses.reduce((accum, curr) => {
-        console.log(moment(curr.date).date(), today.date())
-        return moment(curr.date).date() === today.date()
+        return moment(curr.date).date() === moment().date()
           ? (accum += curr.amount)
           : accum
       }, 0),

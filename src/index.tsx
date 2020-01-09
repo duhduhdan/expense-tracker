@@ -7,6 +7,10 @@ import './index.css'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 
+// import { generate } from './generate-data'
+
+// generate(database)
+
 ReactDOM.render(
   <DatabaseProvider database={database}>
     <AuthProvider>

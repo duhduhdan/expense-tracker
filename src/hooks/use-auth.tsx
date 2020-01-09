@@ -84,6 +84,7 @@ function useProviderAuth() {
   useEffect(() => {
     const unsub = firebase.auth().onAuthStateChanged(user => {
       if (user) {
+        console.log(user)
         setUser(user)
       } else {
         setUser(false)
