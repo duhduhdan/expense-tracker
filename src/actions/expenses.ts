@@ -8,6 +8,7 @@ interface ExpenseModel extends Model {
   item: string
   amount: number
   category: string
+  last_modified: number
 }
 
 type Expense = {
@@ -15,6 +16,7 @@ type Expense = {
   item?: string
   amount?: number
   category?: string
+  last_modified?: number
   id?: string
 }
 
@@ -23,6 +25,8 @@ export async function createExpense({
   item,
   amount,
   category,
+  last_modified,
+  id,
 }: Expense): Promise<void> {
   const collection = database.collections.get('expenses')
 
@@ -32,6 +36,8 @@ export async function createExpense({
       expense.item = item
       expense.amount = amount
       expense.category = category
+      expense['_raw'].id = id
+      expense.last_modified = last_modified
     })
   })
 }
@@ -71,6 +77,7 @@ export async function updateExpense({
 
     await expense.update((expense: ExpenseModel) => {
       Object.keys(toUpdate).forEach(key => (expense[key] = toUpdate[key]))
+      expense.last_modified = Date.now()
     })
   })
 }

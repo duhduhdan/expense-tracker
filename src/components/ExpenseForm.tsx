@@ -1,8 +1,11 @@
 import React, { FormEvent, useRef, useState, RefObject } from 'react'
 import { Button, Form, Select, DatePicker, InputNumber, Input } from 'antd'
 import { Moment } from 'moment'
+import uuid from 'uuid/v4'
 
 import { createExpense } from '../actions/expenses'
+import { useAuth } from '../hooks/use-auth'
+import { createExpense as createExpenseReq } from '../services/request/expense'
 
 type Vals = {
   expense_date: Moment
@@ -13,21 +16,36 @@ type Vals = {
 
 function ExpenseForm({ form }): React.ReactElement {
   const { getFieldDecorator } = form
-
+  const { user } = useAuth()
   const [dataSource, updateDataSource] = useState<any>([])
-
   const itemInput: RefObject<Input> = useRef()
+  const defaultCategories = [
+    'Grocery',
+    'Snack',
+    'Clothes',
+    'Living',
+    'Investments',
+    'Entertainment',
+    'Transportation',
+    'Subscriptions',
+    'Medical',
+    'Misc',
+    'Bills',
+    'Eating out',
+  ]
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault()
 
     form.validateFields(async (err: any, vals: Vals) => {
       if (!err) {
+        const id = uuid()
         const expense = {
           date: vals.expense_date.format('L'),
           item: vals.expense_item,
           amount: vals.expense_amount,
           category: vals.expense_category,
+          last_modified: Date.now(),
         }
 
         updateDataSource([
@@ -38,8 +56,6 @@ function ExpenseForm({ form }): React.ReactElement {
           },
         ])
 
-        await createExpense(expense)
-
         form.setFieldsValue({
           expense_amount: '',
           expense_item: '',
@@ -48,6 +64,14 @@ function ExpenseForm({ form }): React.ReactElement {
         if (itemInput && itemInput.current) {
           itemInput.current.focus()
         }
+
+        await createExpense({ ...expense, id }).catch(console.error)
+
+        await createExpenseReq({
+          uid: user.uid,
+          expense,
+          id,
+        }).catch(console.error)
       }
     })
   }
@@ -70,17 +94,11 @@ function ExpenseForm({ form }): React.ReactElement {
             autoFocus
             showSearch
           >
-            <Select.Option value="Grocery">Grocery</Select.Option>
-            <Select.Option value="Snack">Snack</Select.Option>
-            <Select.Option value="Clothes">Clothes</Select.Option>
-            <Select.Option value="Living">Living</Select.Option>
-            <Select.Option value="Investments">Investments</Select.Option>
-            <Select.Option value="Entertainment">Entertainment</Select.Option>
-            <Select.Option value="Transportation">Transportation</Select.Option>
-            <Select.Option value="Subscriptions">Subscriptions</Select.Option>
-            <Select.Option value="Medical">Medical</Select.Option>
-            <Select.Option value="Misc">Misc</Select.Option>
-            <Select.Option value="Bills">Bills</Select.Option>
+            {defaultCategories.map(category => (
+              <Select.Option value={category} key={category}>
+                {category}
+              </Select.Option>
+            ))}
           </Select>,
         )}
       </Form.Item>

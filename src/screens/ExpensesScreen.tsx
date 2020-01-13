@@ -4,7 +4,6 @@ import {
   Icon,
   Menu,
   Row,
-  Col,
   Avatar,
   Button,
   Dropdown,
@@ -21,7 +20,7 @@ import { ExpenseForm } from '../components/ExpenseForm'
 import { ExpenseTable } from '../components/ExpenseTable'
 import { useAuth } from '../hooks/use-auth'
 import { IExpense } from '../model/expense'
-import { BarChart } from '../components/BarChart'
+import { getExpenses } from '../services/request/expense'
 
 const { Header, Content, Sider } = Layout
 const { SubMenu } = Menu
@@ -37,6 +36,7 @@ function ExpensesScreen({ expenses }: Props) {
   const [totalSpent, setTotalSpent] = useState<number>(0.0)
   const [spentToday, setSpentToday] = useState<number>(0.0)
   const [collapsed, setCollapsed] = useState<boolean>(true)
+  const [latestTimestamp, setLatestTimestamp] = useState<number>(null)
   const { user, signout } = useAuth()
 
   useEffect(() => {
@@ -49,12 +49,31 @@ function ExpensesScreen({ expenses }: Props) {
 
     setSpentToday(
       expenses.reduce((accum, curr) => {
-        return moment(curr.date).date() === moment().date()
+        return moment(curr.date, 'L').date() === moment().date()
           ? (accum += curr.amount)
           : accum
       }, 0),
     )
-  }, [expenses])
+
+    setLatestTimestamp(
+      expenses.sort(
+        (a: any, b: any): any => a.last_modified < b.last_modified,
+      )[0].last_modified,
+    )
+
+    async function getLatestExpenses() {
+      if (user && latestTimestamp) {
+        const results = await getExpenses({
+          uid: user.uid,
+          since: latestTimestamp,
+        })
+
+        console.log(results, latestTimestamp)
+      }
+    }
+
+    getLatestExpenses()
+  }, [expenses, latestTimestamp, user])
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>

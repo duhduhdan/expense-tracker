@@ -6,10 +6,14 @@ export interface IExpense {
   item: string
   amount: number
   category: string
+  last_modified: number
 }
 
 export default class Expense extends Model {
   static table = 'expenses'
+
+  @field('last_modified')
+  public last_modified: number
 
   @field('date')
   public date: string

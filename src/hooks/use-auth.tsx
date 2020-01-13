@@ -12,7 +12,7 @@ firebase.initializeApp({
   appId: '1:739070515575:web:030aa8b50dedb688f9a972',
 })
 
-const AuthContext = createContext(undefined)
+const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const auth = useProviderAuth()
@@ -84,7 +84,6 @@ function useProviderAuth() {
   useEffect(() => {
     const unsub = firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        console.log(user)
         setUser(user)
       } else {
         setUser(false)

@@ -63,13 +63,9 @@ function ExpenseTable({ expenses, form }): React.ReactElement {
   const sortedExpenses = expenses.sort((a: any, b: any) =>
     moment.utc(b.date, 'L').diff(moment.utc(a.date, 'L')),
   )
-
   const [searchText, updateSearchText] = useState<string>(null)
-
   const [searchedColumn, updateSearchedColumn] = useState<string>(null)
-
   const [editingKey, setEditingKey] = useState<string>(null)
-
   const searchInput = useRef(null)
 
   const tableColumns = [

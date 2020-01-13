@@ -2,16 +2,9 @@
 
 Offline first expenses tracking with a dash of data visualization.
 
-### Todos
+## Resources
 
-- [x] Firebase authentication
-  - [ ] Persistent login
-- [x] Ant Data Visualization
-- [x] Routing
-- [x] Login page instead of modal
-- [ ] Past month expenses
-- [ ] Paginate table to new route
-- [ ] Remote database sync
-- [ ] Custom categories
-- [ ] Notifications for upcoming bills
-- [ ] Share bills
+- [Trello](https://trello.com/b/5JwgZiBQ/kostnadr)
+- [Ant Design](https://ant.design/)
+- [G2Plot](https://g2plot.antv.vision/en)
+- [Firebase](https://firebase.google.com/)
