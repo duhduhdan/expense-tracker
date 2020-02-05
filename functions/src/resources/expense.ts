@@ -5,7 +5,7 @@ interface Expense {
   expense?: any | any[]
   id?: string
   last_modified?: string
-  since?: number
+  since?: string
 }
 
 export async function createExpense({ uid, expense }: Expense): Promise<void> {
@@ -40,38 +40,21 @@ export async function getExpenses({ uid, since }: Expense): Promise<Expense[]> {
 
   const expenses: Expense[] = []
   const db = admin.firestore()
+  const collection_ref = db
+    .collection('users')
+    .doc(uid)
+    .collection('expenses')
 
   try {
     if (since) {
-      console.log(`~*~*~*~*~*~*~*~ ${since} ~*~*~*~*~*~*~*~`)
-
-      const result = await db
-        .collection('users')
-        .doc(uid)
-        .collection('expenses')
-        .orderBy('last_modified', 'desc')
-        .where('last_modified', '>', since)
+      const result = await collection_ref
+        // TODO: Need to look into why this is still responding even if false
+        .where('last_modified', '>', parseInt(since, 10))
         .get()
-
-      const raw = await db
-        .collection('users')
-        .doc(uid)
-        .collection('expenses')
-        .get()
-
-      console.log(
-        `~*~*~*~*~*~*~*~ ${JSON.stringify(
-          raw.forEach(doc => doc.data()),
-        )} ~*~*~*~*~*~*~*~`,
-      )
 
       result.forEach(doc => expenses.push(doc.data() as Expense))
     } else {
-      const result = await db
-        .collection('users')
-        .doc(uid)
-        .collection('expenses')
-        .get()
+      const result = await collection_ref.get()
 
       result.forEach(doc => expenses.push(doc.data() as Expense))
     }

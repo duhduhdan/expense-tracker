@@ -2,219 +2,161 @@ import React, { useEffect, useState } from 'react'
 import {
   Layout,
   Icon,
-  Menu,
   Row,
-  Avatar,
-  Button,
-  Dropdown,
+  Col,
   Typography,
-  PageHeader,
   Statistic,
+  Card,
+  Modal,
+  Calendar,
 } from 'antd'
-import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
 import withObservables from '@nozbe/with-observables'
 import { Q } from '@nozbe/watermelondb'
-import moment from 'moment'
+import moment, { Moment } from 'moment'
 
+import { createExpense } from '../actions/expenses'
+import { ColumnChart } from '../components/ColumnChart'
+import { AreaChart } from '../components/AreaChart'
 import { ExpenseForm } from '../components/ExpenseForm'
 import { ExpenseTable } from '../components/ExpenseTable'
+import { Screen } from '../components/Screen'
 import { useAuth } from '../hooks/use-auth'
 import { IExpense } from '../model/expense'
 import { getExpenses } from '../services/request/expense'
 
-const { Header, Content, Sider } = Layout
-const { SubMenu } = Menu
+const { Content } = Layout
 const { Text } = Typography
 
-type Props = { expenses: IExpense[] }
+type Props = { expenses: IExpense[]; database: any }
 
-function ExpensesScreen({ expenses }: Props) {
-  const [minMaxExpense, setMinMaxExpense] = useState<{
-    min: number
-    max: number
-  }>({ min: 0.0, max: 0.0 })
+function ExpensesScreen({ expenses, database }: Props) {
+  const [modalVisible, setModalVisible] = useState<boolean>(false)
+  const [monthToView, setMonthToView] = useState<string>(null)
+  const [currentMonth, setCurrentMonth] = useState<string>(null)
   const [totalSpent, setTotalSpent] = useState<number>(0.0)
-  const [spentToday, setSpentToday] = useState<number>(0.0)
-  const [collapsed, setCollapsed] = useState<boolean>(true)
-  const [latestTimestamp, setLatestTimestamp] = useState<number>(null)
-  const { user, signout } = useAuth()
+  const { user } = useAuth()
+  const latestTimestamp =
+    expenses && expenses.length
+      ? expenses.sort(
+          (a: any, b: any): any => a.last_modified < b.last_modified,
+        )[0].last_modified
+      : 1
+
+  function setMonthYear(date: Moment) {
+    setMonthToView(moment(date, 'L').format('MM'))
+    setCurrentMonth(moment(date, 'L').format('MMMM YYYY'))
+    setModalVisible(false)
+  }
 
   useEffect(() => {
     setTotalSpent(expenses.reduce((accum, curr) => (accum += curr.amount), 0))
+  }, [expenses])
 
-    setMinMaxExpense({
-      max: expenses.reduce((accum, curr) => Math.max(accum, curr.amount), 0),
-      min: expenses.reduce((accum, curr) => Math.min(accum, curr.amount), 0),
-    })
-
-    setSpentToday(
-      expenses.reduce((accum, curr) => {
-        return moment(curr.date, 'L').date() === moment().date()
-          ? (accum += curr.amount)
-          : accum
-      }, 0),
-    )
-
-    setLatestTimestamp(
-      expenses.sort(
-        (a: any, b: any): any => a.last_modified < b.last_modified,
-      )[0].last_modified,
-    )
-
-    async function getLatestExpenses() {
+  useEffect(() => {
+    async function create() {
       if (user && latestTimestamp) {
-        const results = await getExpenses({
+        const { expenses: expensesRes } = await getExpenses({
           uid: user.uid,
           since: latestTimestamp,
         })
 
-        console.log(results, latestTimestamp)
+        if (expensesRes) {
+          expensesRes.forEach(async expense => {
+            await createExpense(expense)
+          })
+        }
       }
     }
-
-    getLatestExpenses()
-  }, [expenses, latestTimestamp, user])
+    // create()
+  }, [user])
 
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      <Sider collapsed={collapsed} onCollapse={setCollapsed}>
-        <Row type="flex" justify="center" align="middle">
-          <Text
-            style={{
-              color: '#fff',
-              margin: 0,
-              padding: '8px 0',
-              fontSize: 16,
-            }}
-            strong
-          >
-            Kostnadr
-          </Text>
-        </Row>
-        <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-          <Menu.Item key="1">
-            <Icon type="rise" />
-            <span>Expenses</span>
-          </Menu.Item>
-          <Menu.Item key="2">
-            <Icon type="dashboard" />
-            <span>Bills</span>
-          </Menu.Item>
-          <SubMenu
-            key="sub1"
-            title={
-              <span>
-                <Icon type="user" />
-                <span>User</span>
-              </span>
-            }
-          >
-            <Menu.Item key="3">Tom</Menu.Item>
-            <Menu.Item key="4">Bill</Menu.Item>
-            <Menu.Item key="5">Alex</Menu.Item>
-          </SubMenu>
-          <SubMenu
-            key="sub2"
-            title={
-              <span>
-                <Icon type="team" />
-                <span>Team</span>
-              </span>
-            }
-          >
-            <Menu.Item key="6">Team 1</Menu.Item>
-            <Menu.Item key="8">Team 2</Menu.Item>
-          </SubMenu>
-          <Menu.Item key="9">
-            <Icon type="file" />
-            <span>File</span>
-          </Menu.Item>
-        </Menu>
-      </Sider>
-      <Layout style={{ backgroundColor: '#fff' }}>
-        <Header
-          style={{ background: '#fff', padding: '0 16px', width: '100%' }}
-        >
-          <Row type="flex" justify="space-between" align="middle">
-            <Icon
-              type={collapsed ? 'menu-unfold' : 'menu-fold'}
-              onClick={() => setCollapsed(!collapsed)}
-            />
-            <Dropdown
-              trigger={['click']}
-              overlay={
-                <Menu>
-                  <Menu.Item>
-                    <Button type="link" onClick={signout}>
-                      Sign out
-                    </Button>
-                  </Menu.Item>
-                </Menu>
+    <Screen showModal={() => setModalVisible(true)} month={currentMonth}>
+      <Modal
+        title="View month"
+        visible={modalVisible}
+        onOk={() => setModalVisible(false)}
+        onCancel={() => setModalVisible(false)}
+      >
+        <Calendar mode="year" onSelect={setMonthYear} />
+      </Modal>
+      <Content style={{ padding: 32 }}>
+        <Row type="flex">
+          <Col span={24}>
+            <Card
+              title={
+                <Row type="flex" align="middle">
+                  <Icon
+                    type="bar-chart"
+                    style={{ fontSize: 24, marginRight: 8 }}
+                  />
+                  <Text>Expenses breakdown</Text>
+                </Row>
               }
             >
-              <div>
-                <Button>
-                  <Avatar icon="user" size="small" />
-                  <Text style={{ paddingLeft: 8 }}>
-                    {user && user.email}
-                  </Text>{' '}
-                  <Icon type="down" />
-                </Button>
-              </div>
-            </Dropdown>
-          </Row>
-        </Header>
-        <Content style={{ padding: 16 }}>
-          <PageHeader
-            title="Expenses"
-            subTitle={moment().format('MMMM YYYY')}
-            style={{
-              border: '1px solid rgb(235, 237, 240)',
-            }}
-          >
-            <Row type="flex">
+              <ColumnChart month={monthToView} database={database} />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row type="flex" style={{ paddingTop: 32 }}>
+          <Col span={24}>
+            <Card
+              title={
+                <Row type="flex" align="middle">
+                  <Icon
+                    type="schedule"
+                    style={{ fontSize: 24, marginRight: 8 }}
+                  />
+                  <Text>Manage expenses</Text>
+                </Row>
+              }
+            >
+              <Col span={24}>
+                <ExpenseForm />
+              </Col>
+              <Col span={24}>
+                <ExpenseTable month={monthToView} database={database} />
+              </Col>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row type="flex" style={{ paddingTop: 32 }}>
+          <Col span={24}>
+            <Card
+              title={
+                <Row type="flex" align="middle">
+                  <Icon
+                    type="calculator"
+                    style={{ fontSize: 24, marginRight: 8 }}
+                  />
+                  <Text>Total spent</Text>
+                </Row>
+              }
+            >
               <Statistic
-                title="Total spent"
                 prefix="$"
-                value={totalSpent.toFixed(2)}
+                value={totalSpent}
+                precision={2}
+                valueStyle={{ fontSize: 32 }}
               />
-              <Statistic
-                title="Largest expense"
-                value={minMaxExpense.max}
-                prefix="$"
-                style={{ margin: '0 32px' }}
-              />
-              <Statistic
-                title="Spent today"
-                prefix="$"
-                value={spentToday.toFixed(2)}
-              />
-            </Row>
-          </PageHeader>
-          <Row>
-            <ExpenseForm />
-          </Row>
-          <Row>
-            <ExpenseTable />
-          </Row>
-        </Content>
-      </Layout>
-    </Layout>
+              {/* <AreaChart month={monthToView} database={database} /> */}
+            </Card>
+          </Col>
+        </Row>
+      </Content>
+    </Screen>
   )
 }
 
-const ObservableExpensesScreen = withDatabase(
-  withObservables([] as never[], ({ database }) => ({
-    expenses: database.collections
-      .get('expenses')
-      .query(
-        Q.where(
-          'date',
-          Q.like(`%${Q.sanitizeLikeString(moment().format('MM'))}%`),
-        ),
-      )
-      .observe(),
-  }))(ExpensesScreen),
-)
+const enhance = withObservables(['month'], ({ database, month }: any) => ({
+  expenses: database.collections
+    .get('expenses')
+    .query(Q.where('date', Q.like(`%^${month || moment().format('MM')}%`)))
+    .observe(),
+}))
+
+const ObservableExpensesScreen = enhance(ExpensesScreen)
 
 export { ObservableExpensesScreen as ExpensesScreen }

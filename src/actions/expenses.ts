@@ -20,6 +20,23 @@ type Expense = {
   id?: string
 }
 
+export async function getExpenses() {
+  const collection = database.collections.get('expenses')
+  const expenses: Expense[] = await collection.query().fetch()
+  const transformed = expenses.map(
+    ({ date, item, amount, category, last_modified, id }: Expense) => ({
+      date,
+      item,
+      amount,
+      category,
+      last_modified,
+      id,
+    }),
+  )
+
+  return transformed
+}
+
 export async function createExpense({
   date,
   item,

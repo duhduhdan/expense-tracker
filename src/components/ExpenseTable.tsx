@@ -12,7 +12,6 @@ import {
 } from 'antd'
 import Highlighter from 'react-highlight-words'
 import withObservables from '@nozbe/with-observables'
-import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
 import { Q } from '@nozbe/watermelondb'
 import moment from 'moment'
 
@@ -249,11 +248,12 @@ function ExpenseTable({ expenses, form }): React.ReactElement {
           style={{ color: filtered ? '#1890ff' : undefined }}
         />
       ),
-      onFilter: (value: string, record: any) =>
-        record[dataIndex]
+      onFilter: (value: string, record: any) => {
+        return record[dataIndex]
           .toString()
           .toLowerCase()
-          .includes(value.toLowerCase()),
+          .includes(value.toLowerCase())
+      },
       onFilterDropdownVisibleChange: (visible: boolean) => {
         if (visible) {
           setTimeout(() => searchInput.current.select())
@@ -309,18 +309,13 @@ function ExpenseTable({ expenses, form }): React.ReactElement {
 
 const EditableFormTable = Form.create()(ExpenseTable)
 
-const ObservableExpenseTable = withDatabase(
-  withObservables([] as never[], ({ database }) => ({
-    expenses: database.collections
-      .get('expenses')
-      .query(
-        Q.where(
-          'date',
-          Q.like(`%${Q.sanitizeLikeString(moment().format('MM'))}%`),
-        ),
-      )
-      .observe(),
-  }))(EditableFormTable),
-)
+const enhance = withObservables(['month'], ({ database, month }: any) => ({
+  expenses: database.collections
+    .get('expenses')
+    .query(Q.where('date', Q.like(`%^${month || moment().format('MM')}%`)))
+    .observe(),
+}))
+
+const ObservableExpenseTable = enhance(EditableFormTable)
 
 export { ObservableExpenseTable as ExpenseTable }

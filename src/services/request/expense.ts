@@ -11,11 +11,7 @@ interface Expense {
   since?: number
 }
 
-export async function createExpense({
-  uid,
-  expense,
-}: // id,
-Expense): Promise<void> {
+export async function createExpense({ uid, expense }: Expense): Promise<void> {
   if (!uid || !expense) {
     throw new Error('Need a uid and expense to create an expense!')
   }
@@ -30,7 +26,7 @@ Expense): Promise<void> {
   })
 }
 
-export async function getExpenses({ uid, since }: Expense): Promise<Expense[]> {
+export async function getExpenses({ uid, since }: Expense): Promise<any> {
   if (!uid) {
     throw new Error('Need a uid to get expenses!')
   }
