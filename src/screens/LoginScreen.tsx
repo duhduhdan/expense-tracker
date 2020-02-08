@@ -1,13 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
 import { Layout, Typography, Row, Col, Button } from 'antd'
 
 import { LoginForm } from '../components/LoginForm'
 import { SignupForm } from '../components/SignupForm'
+import { useAuth } from '../hooks/use-auth'
 
 const { Paragraph, Title } = Typography
 
 function LoginScreen() {
   const [signingUp, setSigningUp] = useState<boolean>(false)
+  const { user } = useAuth()
+  const history = useHistory()
+
+  useEffect(() => {
+    if (user) {
+      history.push('/')
+    }
+  }, [user])
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>

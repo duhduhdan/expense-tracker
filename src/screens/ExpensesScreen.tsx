@@ -16,31 +16,30 @@ import moment, { Moment } from 'moment'
 
 import { createExpense } from '../actions/expenses'
 import { ColumnChart } from '../components/ColumnChart'
-import { AreaChart } from '../components/AreaChart'
 import { ExpenseForm } from '../components/ExpenseForm'
 import { ExpenseTable } from '../components/ExpenseTable'
 import { Screen } from '../components/Screen'
 import { useAuth } from '../hooks/use-auth'
 import { IExpense } from '../model/expense'
 import { getExpenses } from '../services/request/expense'
+import { calculateMonthOverMonth } from '../utils/statistics'
 
 const { Content } = Layout
 const { Text } = Typography
 
-type Props = { expenses: IExpense[]; database: any }
+type Props = {
+  expenses: IExpense[]
+  lastMonthExpenses: IExpense[]
+  database: any
+}
 
-function ExpensesScreen({ expenses, database }: Props) {
+function ExpensesScreen({ expenses, lastMonthExpenses, database }: Props) {
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [monthToView, setMonthToView] = useState<string>(null)
   const [currentMonth, setCurrentMonth] = useState<string>(null)
   const [totalSpent, setTotalSpent] = useState<number>(0.0)
+  const [monthOverMonth, setMonthOverMonth] = useState<number>(0)
   const { user } = useAuth()
-  const latestTimestamp =
-    expenses && expenses.length
-      ? expenses.sort(
-          (a: any, b: any): any => a.last_modified < b.last_modified,
-        )[0].last_modified
-      : 1
 
   function setMonthYear(date: Moment) {
     setMonthToView(moment(date, 'L').format('MM'))
@@ -50,9 +49,20 @@ function ExpensesScreen({ expenses, database }: Props) {
 
   useEffect(() => {
     setTotalSpent(expenses.reduce((accum, curr) => (accum += curr.amount), 0))
-  }, [expenses])
 
-  useEffect(() => {
+    if (lastMonthExpenses) {
+      setMonthOverMonth(() =>
+        calculateMonthOverMonth(expenses, lastMonthExpenses),
+      )
+    }
+
+    const latestTimestamp =
+      expenses && expenses.length
+        ? expenses.sort(
+            (a: any, b: any): any => a.last_modified < b.last_modified,
+          )[0].last_modified
+        : 1
+
     async function create() {
       if (user && latestTimestamp) {
         const { expenses: expensesRes } = await getExpenses({
@@ -60,7 +70,7 @@ function ExpensesScreen({ expenses, database }: Props) {
           since: latestTimestamp,
         })
 
-        if (expensesRes) {
+        if (expensesRes.length > 0) {
           expensesRes.forEach(async expense => {
             await createExpense(expense)
           })
@@ -68,7 +78,7 @@ function ExpensesScreen({ expenses, database }: Props) {
       }
     }
     // create()
-  }, [user])
+  }, [expenses, lastMonthExpenses, user])
 
   return (
     <Screen showModal={() => setModalVisible(true)} month={currentMonth}>
@@ -80,8 +90,58 @@ function ExpensesScreen({ expenses, database }: Props) {
       >
         <Calendar mode="year" onSelect={setMonthYear} />
       </Modal>
+
       <Content style={{ padding: 32 }}>
-        <Row type="flex">
+        <Row type="flex" gutter={32}>
+          <Col span={12}>
+            <Card
+              title={
+                <Row type="flex" align="middle">
+                  <Icon
+                    type="calculator"
+                    style={{ fontSize: 24, marginRight: 8 }}
+                  />
+                  <Text>Total spent</Text>
+                </Row>
+              }
+            >
+              <Statistic
+                prefix={<Icon type="dollar" style={{ marginRight: 8 }} />}
+                value={totalSpent}
+                precision={2}
+                valueStyle={{ fontSize: 32 }}
+              />
+            </Card>
+          </Col>
+
+          <Col span={12}>
+            <Card
+              title={
+                <Row type="flex" align="middle">
+                  <Icon type="fall" style={{ fontSize: 24, marginRight: 8 }} />
+                  <Text>MoM change</Text>
+                </Row>
+              }
+            >
+              <Statistic
+                prefix={
+                  <Icon
+                    type={monthOverMonth > 0 ? 'frown' : 'smile'}
+                    style={{ marginRight: 8 }}
+                  />
+                }
+                value={monthOverMonth}
+                precision={0}
+                valueStyle={{
+                  fontSize: 32,
+                }}
+                suffix="%"
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row type="flex" style={{ paddingTop: 32 }}>
           <Col span={24}>
             <Card
               title={
@@ -121,36 +181,25 @@ function ExpensesScreen({ expenses, database }: Props) {
             </Card>
           </Col>
         </Row>
-
-        <Row type="flex" style={{ paddingTop: 32 }}>
-          <Col span={24}>
-            <Card
-              title={
-                <Row type="flex" align="middle">
-                  <Icon
-                    type="calculator"
-                    style={{ fontSize: 24, marginRight: 8 }}
-                  />
-                  <Text>Total spent</Text>
-                </Row>
-              }
-            >
-              <Statistic
-                prefix="$"
-                value={totalSpent}
-                precision={2}
-                valueStyle={{ fontSize: 32 }}
-              />
-              {/* <AreaChart month={monthToView} database={database} /> */}
-            </Card>
-          </Col>
-        </Row>
       </Content>
     </Screen>
   )
 }
 
 const enhance = withObservables(['month'], ({ database, month }: any) => ({
+  lastMonthExpenses: database.collections
+    .get('expenses')
+    .query(
+      Q.where(
+        'date',
+        Q.like(
+          `%^${moment()
+            .subtract(1, 'months')
+            .format('MM')}%`,
+        ),
+      ),
+    )
+    .observe(),
   expenses: database.collections
     .get('expenses')
     .query(Q.where('date', Q.like(`%^${month || moment().format('MM')}%`)))
