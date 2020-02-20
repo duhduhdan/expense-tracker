@@ -77,6 +77,7 @@ function ExpensesScreen({ expenses, lastMonthExpenses, database }: Props) {
         }
       }
     }
+
     // create()
   }, [expenses, lastMonthExpenses, user])
 

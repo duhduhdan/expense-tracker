@@ -6,35 +6,36 @@ import moment from 'moment'
 
 function Column({ expenses }) {
   const [chartConfig, setChartConfig] = useState(null)
-  const config = {
-    forceFit: true,
-    xField: 'category',
-    yField: 'cost',
-    height: 400,
-    padding: 'auto',
-    colorField: 'category',
-    xAxis: {
-      label: {
-        visible: false,
-      },
-    },
-    yAxis: {
-      label: {
-        visible: false,
-      },
-    },
-    tooltip: {
-      visible: true,
-      shared: true,
-      showTitle: false,
-      htmlContent: (title: string, items: any[]) =>
-        `<div>
-            ${title} ${items && parseFloat(items[0].value).toFixed(2)}
-          </div>`,
-    },
-  }
 
   useEffect(() => {
+    const config = {
+      forceFit: true,
+      xField: 'category',
+      yField: 'cost',
+      height: 400,
+      padding: 'auto',
+      colorField: 'category',
+      xAxis: {
+        label: {
+          visible: false,
+        },
+      },
+      yAxis: {
+        label: {
+          visible: false,
+        },
+      },
+      tooltip: {
+        visible: true,
+        shared: true,
+        showTitle: false,
+        htmlContent: (title: string, items: any[]) =>
+          `<div>
+            ${title} ${items && parseFloat(items[0].value).toFixed(2)}
+          </div>`,
+      },
+    }
+
     const data = expenses
       .map((expense: any) => ({
         category: expense.category,

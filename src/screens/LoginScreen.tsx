@@ -17,7 +17,7 @@ function LoginScreen() {
     if (user) {
       history.push('/')
     }
-  }, [user])
+  }, [user, history])
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
